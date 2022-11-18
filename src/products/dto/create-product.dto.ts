@@ -6,6 +6,8 @@ import {
   IsOptional,
   IsInt,
   IsArray,
+  IsNotEmpty,
+  Min,
 } from 'class-validator';
 
 export class CreateProductDto {
@@ -37,4 +39,9 @@ export class CreateProductDto {
 
   @IsString()
   gender: string;
+
+  @IsString({ each: true })
+  @IsArray({ message: 'Tags no es un arrays de string' })
+  @IsOptional()
+  tags: [];
 }
