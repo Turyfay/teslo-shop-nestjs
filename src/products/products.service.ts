@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { errorCodeDBMessageException } from 'src/helpers/errorDBMessage';
 import { Repository } from 'typeorm';
@@ -23,6 +23,38 @@ export class ProductsService {
       const product = this.productRepository.create(createProductDto);
       await this.productRepository.save(product);
       return product;
+    } catch (error) {
+      errorCodeDBMessageException(error, this.logger);
+    }
+  }
+
+  async findAllProduct() {
+    try {
+      const products = this.productRepository.find();
+      return products;
+    } catch (error) {
+      errorCodeDBMessageException(error, this.logger);
+    }
+  }
+
+  async findOne(id: string) {
+    const product = await this.productRepository.findOneBy({ id });
+    if (!product)
+      throw new NotFoundException(`Product with id ${id} not found`);
+    return product;
+  }
+
+  async update() {
+    try {
+    } catch (error) {
+      errorCodeDBMessageException(error, this.logger);
+    }
+  }
+
+  async deleteById(id: string) {
+    try {
+      const product = await this.findOne(id);
+      await this.productRepository.remove(product);
     } catch (error) {
       errorCodeDBMessageException(error, this.logger);
     }
