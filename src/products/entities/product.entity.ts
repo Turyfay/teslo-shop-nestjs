@@ -1,4 +1,4 @@
-import { BeforeInsert } from 'typeorm';
+import { BeforeInsert, BeforeUpdate } from 'typeorm';
 import { Column } from 'typeorm/decorator/columns/Column';
 import { PrimaryGeneratedColumn } from 'typeorm/decorator/columns/PrimaryGeneratedColumn';
 import { Entity } from 'typeorm/decorator/entity/Entity';
@@ -36,5 +36,14 @@ export class Product {
       .toLowerCase()
       .replaceAll(' ', '_')
       .replaceAll("'", '');
+  }
+  @BeforeUpdate()
+  checkSlugUpdate() {
+    if (this.slug) {
+      this.slug = this.slug
+        .toLowerCase()
+        .replaceAll(' ', '_')
+        .replaceAll("'", '');
+    }
   }
 }
