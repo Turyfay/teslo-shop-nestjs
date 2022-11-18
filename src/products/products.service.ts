@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './entities/product.entity';
 import { validate as isUUID } from 'uuid';
+import { UpdateProductDto } from './dto/update-product.dto';
 
 @Injectable()
 export class ProductsService {
@@ -63,11 +64,27 @@ export class ProductsService {
     return product;
   }
 
-  async update() {
+  async update(id: string, updateProductDto: UpdateProductDto) {
+    const product = await this.productRepository.preload({
+      id: id,
+      ...updateProductDto,
+    });
+    if (!product)
+      throw new NotFoundException(`Product with id: ${id} not found`);
+
     try {
+      await this.productRepository.save(product);
     } catch (error) {
       errorCodeDBMessageException(error, this.logger);
     }
+
+    return product;
+    /* try {
+      
+     
+    } catch (error) {
+      errorCodeDBMessageException(error, this.logger);
+    } */
   }
 
   async deleteById(id: string) {
