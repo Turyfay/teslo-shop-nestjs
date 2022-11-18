@@ -1,5 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { errorCodeDBMessageException } from 'src/helpers/errorDBMessage';
 import { Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -28,9 +29,13 @@ export class ProductsService {
     }
   }
 
-  async findAllProduct() {
+  async findAllProduct(paginationDto: PaginationDto) {
     try {
-      const products = this.productRepository.find();
+      const { limit = 10, offset = 0 } = paginationDto;
+      const products = this.productRepository.find({
+        take: limit,
+        skip: offset,
+      });
       return products;
     } catch (error) {
       errorCodeDBMessageException(error, this.logger);
