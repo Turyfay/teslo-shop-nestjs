@@ -128,4 +128,14 @@ export class ProductsService {
       errorCodeDBMessageException(error, this.logger);
     }
   }
+
+  async deleteAllProduct() {
+    const query = this.productRepository.createQueryBuilder('product');
+
+    try {
+      return await query.delete().where({}).execute();
+    } catch (error) {
+      errorCodeDBMessageException(error, this.logger);
+    }
+  }
 }
