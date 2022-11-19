@@ -1,7 +1,8 @@
-import { BeforeInsert, BeforeUpdate } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, OneToMany } from 'typeorm';
 import { Column } from 'typeorm/decorator/columns/Column';
 import { PrimaryGeneratedColumn } from 'typeorm/decorator/columns/PrimaryGeneratedColumn';
 import { Entity } from 'typeorm/decorator/entity/Entity';
+import { ProductImage } from './';
 
 @Entity()
 export class Product {
@@ -28,6 +29,10 @@ export class Product {
   gender: string;
   @Column('text', { array: true, default: [] })
   tags: string[];
+  @OneToMany(() => ProductImage, (productImage) => productImage.product, {
+    cascade: true,
+  })
+  images?: ProductImage;
 
   @BeforeInsert()
   checkSlugInsert() {
