@@ -44,4 +44,9 @@ export class CreateProductDto {
   @IsArray({ message: 'Tags no es un arrays de string' })
   @IsOptional()
   tags: [];
+
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  images?: [];
 }
