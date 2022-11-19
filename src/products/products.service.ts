@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 import { errorCodeDBMessageException } from 'src/helpers/errorDBMessage';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from './entities/product.entity';
 import { validate as isUUID } from 'uuid';
@@ -17,6 +17,7 @@ export class ProductsService {
     private readonly productRepository: Repository<Product>,
     @InjectRepository(ProductImage)
     private readonly productImageRepository: Repository<ProductImage>,
+    private readonly dataSource: DataSource,
   ) {}
 
   async create(createProductDto: CreateProductDto) {
@@ -84,26 +85,39 @@ export class ProductsService {
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
+    const { images, ...toUpdate } = updateProductDto;
     const product = await this.productRepository.preload({
-      id: id,
-      ...updateProductDto,
+      id,
+      ...toUpdate,
     });
     if (!product)
       throw new NotFoundException(`Product with id: ${id} not found`);
 
+    // Creare query runner
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      await this.productRepository.save(product);
+      if (images) {
+        await queryRunner.manager.delete(ProductImage, { product: { id } });
+        product.images = images.map((img) =>
+          this.productImageRepository.create({ url: img }),
+        );
+      } else {
+      }
+      await queryRunner.manager.save(product);
+      //await this.productRepository.save(product);
+      await queryRunner.commitTransaction();
+      await queryRunner.release();
     } catch (error) {
+      await queryRunner.rollbackTransaction();
+      await queryRunner.release();
       errorCodeDBMessageException(error, this.logger);
     }
 
-    return product;
-    /* try {
-      
-     
-    } catch (error) {
-      errorCodeDBMessageException(error, this.logger);
-    } */
+    return this.findOnePlain(id);
   }
 
   async deleteById(id: string) {
