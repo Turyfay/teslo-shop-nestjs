@@ -4,7 +4,7 @@ import { PrimaryGeneratedColumn } from 'typeorm/decorator/columns/PrimaryGenerat
 import { Entity } from 'typeorm/decorator/entity/Entity';
 import { ProductImage } from './';
 
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id: string;
