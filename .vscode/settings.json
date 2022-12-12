@@ -2,6 +2,8 @@
     "cSpell.words": [
         "Cliente",
         "desconectado",
+        "nestjs",
         "typeorm"
-    ]
+    ],
+    "cSpell.language": "en,es,es-ES"
 }
